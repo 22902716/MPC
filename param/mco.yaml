@@ -1,0 +1,19 @@
+Benchmark_dt_gain: 0.002
+Benchmark_dt_constant: 0.065
+Benchmark_Max_iter: 5
+
+noise_dt_gain: 0.002
+noise_dt_constant: 0.065
+noise_Max_iter: 300
+
+delay_dt_gain: 0.002
+delay_dt_constant: 0.065
+delay_Max_iter: 10
+
+gain_tune_dt_gain: 0.0
+gain_tune_dt_constant: 0.065
+gain_tune_Max_iter: 50
+
+constant_tune_dt_gain: 0.002
+constant_tune_dt_constant: 0.0
+constant_tune_Max_iter: 50
