@@ -32,7 +32,8 @@ class MPCPlanner:
         if self.TESTMODE == "Benchmark" or self.TESTMODE == " ":
             self.dt_gain = param.Benchmark_dt_gain                #change this parameter for different tracks 
             self.dt_constant = param.Benchmark_dt_constant      
-            self.Max_iter = param.Benchmark_Max_iter               
+            # self.Max_iter = param.Benchmark_Max_iter    
+            self.Max_iter=7           
         elif self.TESTMODE == "perception_noise" or self.TESTMODE == "Outputnoise_speed" or self.TESTMODE == "Outputnoise_steering":
             self.dt_gain = param.noise_dt_gain                #change this parameter for different tracks 
             self.dt_constant = param.noise_dt_constant                     #lood forward distance constant
@@ -52,7 +53,7 @@ class MPCPlanner:
 
         self.ds = dataSave(TESTMODE, map_name, self.Max_iter)
         self.waypoints = np.loadtxt('./maps/'+self.map_name+'_raceline.csv', delimiter=",")
-        print(self.dt_constant,self.dt_gain)
+        # print(self.dt_constant,self.dt_gain)
 
 
     def render_waypoints(self, e):
@@ -190,16 +191,17 @@ class MPCPlanner:
         # self.realTimePlot(x_bar)
 
         speed = x0[3] + u_bar[0][1]*self.dt
+        speed,steering = self.outputActionAdjust(speed,u_bar[0][0])
         # print(self.dt)
         pose = np.array([x0[0], x0[1]])
         ego_index,min_dists = self.get_trackline_segment(pose)
-        self.completion = round(ego_index/len(self.wpts)*100,2)
+        self.completion = 100 if ego_index/len(self.wpts) == 0 else round(ego_index/len(self.wpts)*100,2)
         _,trackErr = self.interp_pts(ego_index, min_dists)
-        self.ds.saveStates(laptime,x0,speed,trackErr)
+        self.ds.saveStates(laptime,x0,speed,trackErr,self.scaledRand)
         # print("u_bar",u_bar[0][0], speed)
 
 
-        return speed, u_bar[0][0]  # return the first control action
+        return speed, steering  # return the first control action
         
     def generate_optimal_path(self, x0_in, x_ref, u_init):
         """generates a set of optimal control inputs (and resulting states) for an initial position, reference trajectory and estimated control
@@ -292,22 +294,22 @@ class MPCPlanner:
 
         if self.TESTMODE == "perception_noise":
             rand = np.random.normal(mu,sigma,1)
-            scaledRand = rand*self.scale
-            X0 = [obs['poses_x'][0]+scaledRand[0], obs['poses_y'][0]+scaledRand[0], obs['poses_theta'][0], obs['linear_vels_x'][0]]
+            self.scaledRand = rand*self.scale
+            X0 = [obs['poses_x'][0]+self.scaledRand[0], obs['poses_y'][0]+self.scaledRand[0], obs['poses_theta'][0], obs['linear_vels_x'][0]+self.scaledRand[0]]
 
         return X0
     
     def outputActionAdjust(self,speed,steering):
         rand = np.random.normal(mu,sigma,1)
-        scaledRand = rand*self.scale
+        self.scaledRand = rand*self.scale
 
         speed_mod = speed
         steering_mod = steering
 
         if self.TESTMODE == "Outputnoise_speed":
-            speed_mod = speed + scaledRand[0]
+            speed_mod = speed + self.scaledRand[0]
         elif self.TESTMODE == "Outputnoise_steering":
-            steering_mod = steering + scaledRand[0]
+            steering_mod = steering + self.scaledRand[0]
 
         return speed_mod, steering_mod
     
