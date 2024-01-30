@@ -50,11 +50,11 @@ class dataSave:
         if self.TESTMODE == "control_delay_speed" or self.TESTMODE == "control_Delay_steering" or self.TESTMODE == "perception_delay":
             var1 = "delay time"
             var2 = "NA"
-        if self.TESTMODE == "v_gain":
-            var1 = "v_gain"
+        if self.TESTMODE == "dt_gain":
+            var1 = "dt_gain"
             var2 = "lookahead dist"
-        if self.TESTMODE == "lfd":
-            var1 = "lfd_constant"
+        if self.TESTMODE == "dt_constant":
+            var1 = "dt_constant"
             var2 = "lookahead dist"
           
         np.savetxt(f"csv/{self.map_name}/{self.map_name}_{self.TESTMODE}.csv", self.txt_lapInfo,delimiter=',',header = f"lap_count, lap_success, laptime, completion, {var1}, {var2}, aveTrackErr, Computation_time", fmt="%-10f")

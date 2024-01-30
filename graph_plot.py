@@ -2,17 +2,17 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class graphPlot:
-    def __init__(self, mapname):
-        pass
+    def __init__(self):
+        self.map_name_list = ["gbr","esp","mco"]
+        self.testmode_list = ["Benchmark","perception_noise","Outputnoise_speed","Outputnoise_steering","control_delay_speed","control_Delay_steering","perception_delay"]
 
     def plot_all(self):
-        map_name_list = ["gbr","esp","mco"]
-        testmode_list = ["Benchmark","perception_noise","Outputnoise_speed","Outputnoise_steering","control_delay_speed","control_Delay_steering","perception_delay"]
+
     
-        for mapname in map_name_list:
+        for mapname in self.map_name_list:
             self.planned_path = np.loadtxt(f"./maps/{mapname}_raceline.csv", delimiter=",")
             
-            for testmode in testmode_list:
+            for testmode in self.testmode_list:
 
                 if self.TESTMODE == "Benchmark" or self.TESTMODE == " ": 
                     self.Max_iter=7           
@@ -23,6 +23,19 @@ class graphPlot:
 
                 for iter in range(self.Max_iter):
                     self.trajectory_plot(mapname,testmode,iter)
+
+
+    def old_new_trajectory(self):
+        for mapname in self.map_name_list:
+        
+            old_path = np.loadtxt(f"./old_maps/{mapname}_raceline.csv", delimiter=",")
+            new_path = np.loadtxt(f"./maps/{mapname}_raceline.csv", delimiter= ",")
+
+            plt.figure()
+            plt.plot(old_path[:,1],old_path[:,2])
+            plt.plot(new_path[:,1],new_path[:,2])
+            plt.show()
+            plt.clf()
                 
 
     def trajectory_plot(self, mapname, testmode, iter):
@@ -42,7 +55,8 @@ class graphPlot:
 
 
 def main():
-    pass
+    plot = graphPlot()
+    plot.old_new_trajectory()
 
 if __name__ == "__main__":
     main()

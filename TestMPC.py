@@ -14,7 +14,7 @@ SAVELAPDATA = True
 
 def main():
     map_name_list = ["gbr","esp","mco"]
-    # map_name_list = ["esp"]
+    # map_name_list = ["mco"]
 
     '''Tuning'''
     # testmode_list = ["dt_gain","dt_constant"]
@@ -42,15 +42,15 @@ def main():
 
                 # update camera to follow car
 
-                x = e.cars[0].vertices[::2]
-                y = e.cars[0].vertices[1::2]
-                top, bottom, left, right = max(y), min(y), min(x), max(x)
-                e.score_label.x = left
-                e.score_label.y = top - 700
-                e.left = left - 800
-                e.right = right + 800
-                e.top = top + 800
-                e.bottom = bottom - 800
+                # x = e.cars[0].vertices[::2]
+                # y = e.cars[0].vertices[1::2]
+                # top, bottom, left, right = max(y), min(y), min(x), max(x)
+                # e.score_label.x = left
+                # e.score_label.y = top - 700
+                # e.left = left - 800
+                # e.right = right + 800
+                # e.top = top + 800
+                # e.bottom = bottom - 800
 
                 planner.render_waypoints(env_renderer)
 
@@ -113,7 +113,7 @@ def main():
                     if TESTMODE == "dt_gain":
                         var1 = planner.dt_gain
                         var2 = planner.dt_constant + planner.dt_gain*speed
-                        planner.dt_gain += 0.01
+                        planner.dt_gain += 0.001
                     if TESTMODE == "dt_constant":
                         var1 = planner.dt_constant
                         var2 = planner.dt_constant + planner.dt_gain*speed

@@ -43,9 +43,9 @@ class MPCPlanner:
             self.dt_constant = param.gain_tune_dt_constant                     #lood forward distance constant
             self.Max_iter = param.gain_tune_Max_iter
         elif self.TESTMODE == "dt_constant":
-            self.dt_gain = param.lfd_tune_dt_gain                #change this parameter for different tracks 
-            self.dt_constant = param.lfd_tune_dt_constant                     #lood forward distance constant
-            self.Max_iter = param.lfd_tune_Max_iter
+            self.dt_gain = param.constant_tune_dt_gain                #change this parameter for different tracks 
+            self.dt_constant = param.constant_tune_dt_constant                     #lood forward distance constant
+            self.Max_iter = param.constant_tune_Max_iter
         elif self.TESTMODE == "control_delay_speed" or self.TESTMODE == "control_Delay_steering" or self.TESTMODE == "perception_delay":
             self.dt_gain = param.delay_dt_gain                #change this parameter for different tracks 
             self.dt_constant = param.delay_dt_constant                     #lood forward distance constant
@@ -197,7 +197,7 @@ class MPCPlanner:
         ego_index,min_dists = self.get_trackline_segment(pose)
         self.completion = 100 if ego_index/len(self.wpts) == 0 else round(ego_index/len(self.wpts)*100,2)
         _,trackErr = self.interp_pts(ego_index, min_dists)
-        self.ds.saveStates(laptime,x0,speed,trackErr,self.scaledRand)
+        self.ds.saveStates(laptime,x0,speed,trackErr,self.scaledRand,self.completion)
         # print("u_bar",u_bar[0][0], speed)
 
 
