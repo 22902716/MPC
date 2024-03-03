@@ -32,8 +32,8 @@ class MPCPlanner:
         if self.TESTMODE == "Benchmark" or self.TESTMODE == " ":
             self.dt_gain = param.Benchmark_dt_gain                #change this parameter for different tracks 
             self.dt_constant = param.Benchmark_dt_constant      
-            # self.Max_iter = param.Benchmark_Max_iter    
-            self.Max_iter=7           
+            self.Max_iter = param.Benchmark_Max_iter    
+            # self.Max_iter=7           
         elif self.TESTMODE == "perception_noise" or self.TESTMODE == "Outputnoise_speed" or self.TESTMODE == "Outputnoise_steering":
             self.dt_gain = param.noise_dt_gain                #change this parameter for different tracks 
             self.dt_constant = param.noise_dt_constant                     #lood forward distance constant
@@ -182,6 +182,7 @@ class MPCPlanner:
         
     def plan(self, obs, laptime):
         x0 = self.inputStateAdust(obs)
+        self.X0 = x0
         self.dt = self.dt_gain * x0[3] + self.dt_constant
         reference_path = self.get_timed_trajectory_segment(x0, self.dt, self.N+2)
         u0_estimated = self.estimate_u0(reference_path, x0)
@@ -197,11 +198,39 @@ class MPCPlanner:
         ego_index,min_dists = self.get_trackline_segment(pose)
         self.completion = 100 if ego_index/len(self.wpts) == 0 else round(ego_index/len(self.wpts)*100,2)
         _,trackErr = self.interp_pts(ego_index, min_dists)
-        self.ds.saveStates(laptime,x0,speed,trackErr,self.scaledRand,self.completion)
+
+        slip_angle = self.slipAngleCalc(obs)
+
+        # self.saveFlag = self.toggle(self.saveFlag)
+        # if self.saveFlag:
+        #     self.ds.saveStates(laptime, self.X0, speed, trackErr, self.scaledRand, self.completion, steering, slip_angle)
+
+        self.ds.saveStates(laptime, self.X0, speed, trackErr, self.scaledRand, self.completion, steering, slip_angle)
+
         # print("u_bar",u_bar[0][0], speed)
 
 
         return speed, steering  # return the first control action
+    
+    def slipAngleCalc(self,obs):
+        x = [self.X0[0] -self.prev_x0[0]]
+        y = [self.X0[1] - self.prev_x0[1]]
+        
+        velocity_dir = np.arctan2(y,x)
+        slip = np.abs(velocity_dir[0] - obs['poses_theta'][0]) *360 / (2*np.pi)
+        if slip > 180:
+            slip = slip-360
+        self.prev_x0 = self.X0
+
+        return slip
+    
+        
+    def toggle(self,value):
+        if value:
+            return False
+        else:
+            return True
+
         
     def generate_optimal_path(self, x0_in, x_ref, u_init):
         """generates a set of optimal control inputs (and resulting states) for an initial position, reference trajectory and estimated control
@@ -258,8 +287,8 @@ class MPCPlanner:
             'f': J,
             'g': g_nlp}
         
-        opts = {'ipopt': {'print_level': 2},
-                'print_time': False}
+        opts = {'ipopt': {'max_iter':1500, 'print_level': 0},
+                'print_time': 0}
         solver = ca.nlpsol('solver', 'ipopt', nlp, opts)
 
         sol = solver(x0=x_init, lbx=lbx, ubx=ubx, lbg=0, ubg=0)
@@ -288,6 +317,7 @@ class MPCPlanner:
         if self.reset:
             X0 = [obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], 8.]
             self.reset = 0
+            self.prev_x0 = X0
         else:
             X0 = [obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0]]
 
