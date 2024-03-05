@@ -2,7 +2,7 @@ Benchmark_dt_gain: 0.017
 Benchmark_dt_constant: 0.04
 Benchmark_Max_iter: 5
 
-noise_dt_gain: 0.0017
+noise_dt_gain: 0.017
 noise_dt_constant: 0.04
 noise_Max_iter: 300
 
