@@ -204,8 +204,9 @@ class MPCPlanner:
         # self.saveFlag = self.toggle(self.saveFlag)
         # if self.saveFlag:
         #     self.ds.saveStates(laptime, self.X0, speed, trackErr, self.scaledRand, self.completion, steering, slip_angle)
+        x0_states = [obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0]]
 
-        self.ds.saveStates(laptime, self.X0, speed, trackErr, self.scaledRand, self.completion, steering, slip_angle)
+        self.ds.saveStates(laptime, x0_states, speed, trackErr, self.scaledRand, self.completion, steering, slip_angle)
 
         # print("u_bar",u_bar[0][0], speed)
 
